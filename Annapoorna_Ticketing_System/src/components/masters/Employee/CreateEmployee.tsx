@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
+import axios from 'axios';
 
 function CreateEmployee() {
   const [name, setName] = useState('');
@@ -9,7 +10,7 @@ function CreateEmployee() {
   const [employeeId, setEmployeeId] = useState('');
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const newEmployee = {
@@ -20,8 +21,14 @@ function CreateEmployee() {
       employeeId
     };
 
-    console.log('New Employee:', newEmployee);
-    navigate('/employee-management');
+    try {
+      const response = await axios.post('http://localhost:3001/api/employee', newEmployee);
+      console.log('Employee created:', response.data);
+      navigate('/employee-management');
+    } catch (error) {
+      console.error('Failed to create employee:', error);
+      alert('Error creating employee. Please try again.');
+    }
   };
 
   const handleGoBack = () => {
@@ -32,9 +39,10 @@ function CreateEmployee() {
     <div className="p-6 bg-white rounded-xl shadow">
       <h2 className="text-2xl font-semibold mb-6">Create New Employee</h2>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form 
+      // onSubmit={handleSubmit}
+       className="space-y-6">
 
-        {/* Name */}
         <div className="flex items-center space-x-4">
           <label htmlFor="name" className="block text-sm font-medium text-gray-700 w-36">Name</label>
           <input
@@ -48,7 +56,6 @@ function CreateEmployee() {
           />
         </div>
 
-        {/* Email */}
         <div className="flex items-center space-x-4">
           <label htmlFor="email" className="block text-sm font-medium text-gray-700 w-36">Email</label>
           <input
@@ -62,7 +69,6 @@ function CreateEmployee() {
           />
         </div>
 
-        {/* Phone No */}
         <div className="flex items-center space-x-4">
           <label htmlFor="phoneNo" className="block text-sm font-medium text-gray-700 w-36">Phone No</label>
           <input
@@ -76,7 +82,6 @@ function CreateEmployee() {
           />
         </div>
 
-        {/* Designation */}
         <div className="flex items-center space-x-4">
           <label htmlFor="designation" className="block text-sm font-medium text-gray-700 w-36">Designation</label>
           <input
@@ -90,7 +95,6 @@ function CreateEmployee() {
           />
         </div>
 
-        {/* Employee ID */}
         <div className="flex items-center space-x-4">
           <label htmlFor="employeeId" className="block text-sm font-medium text-gray-700 w-36">Employee ID</label>
           <input
@@ -104,7 +108,6 @@ function CreateEmployee() {
           />
         </div>
 
-        {/* Buttons */}
         <div className="flex justify-end space-x-4 mt-6">
           <button
             type="button"

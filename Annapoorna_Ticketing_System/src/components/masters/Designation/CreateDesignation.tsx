@@ -1,65 +1,84 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
+import axios from 'axios';
 
 function CreateDesignation() {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [city, setCity] = useState('');
-  
+  const [designationId, setDesignationId] = useState('');
+  const [title, setTitle] = useState('');
+  const [loading, setLoading] = useState(false); // Loading state
+  const [error, setError] = useState(''); // Error message state
+  const [successMessage, setSuccessMessage] = useState(''); // Success message
   const navigate = useNavigate();
 
-  const handleCreate = () => {
-    const newDesignation = {
-      name,
-      email,
-      phone,
-      city
-    };
-    console.log('Created Designation:', newDesignation);
+  // Handle form submit
+  const handleCreate = async () => {
+    if (!designationId || !title) {
+      setError('Please fill in all fields');
+      return;
+    }
 
-    // Clear form fields
-    setName('');
-    setEmail('');
-    setPhone('');
-    setCity('');
+    const newDesignation = {
+      designationId,
+      title,
+    };
+
+    try {
+      setLoading(true);
+      setError(''); // Reset error on new attempt
+
+      // Send API request to create designation
+      const response = await axios.post('http://localhost:3001/api/designations', newDesignation);
+
+      if (response.data.success) {
+        setSuccessMessage('Designation created successfully!');
+        setTimeout(() => {
+          navigate('/designation'); // Redirect to designations page after success
+        }, 2000);
+      } else {
+        setError('Failed to create designation');
+      }
+    } catch (err) {
+      setError('Something went wrong, please try again!');
+    } finally {
+      setLoading(false); // Reset loading state
+    }
   };
 
   return (
     <div className="p-8 bg-white rounded-xl shadow max-w-5xl mx-auto">
       <h2 className="text-3xl font-semibold mb-6">Create Designation</h2>
 
+      {/* Show success message */}
+      {successMessage && (
+        <div className="bg-green-100 text-green-700 p-3 rounded-lg mb-4">
+          {successMessage}
+        </div>
+      )}
+
+      {/* Show error message */}
+      {error && (
+        <div className="bg-red-100 text-red-700 p-3 rounded-lg mb-4">
+          {error}
+        </div>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Designation ID Input */}
         <input
           type="text"
-          placeholder="Name"
+          placeholder="Designation ID"
           className="border px-4 py-3 rounded-lg w-full"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
+          value={designationId}
+          onChange={(e) => setDesignationId(e.target.value)}
         />
 
-        <input
-          type="email"
-          placeholder="Email"
-          className="border px-4 py-3 rounded-lg w-full"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-
-        <input
-          type="tel"
-          placeholder="Phone No"
-          className="border px-4 py-3 rounded-lg w-full"
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-        />
-
+        {/* Designation Title Input */}
         <input
           type="text"
-          placeholder="City"
+          placeholder="Designation Title"
           className="border px-4 py-3 rounded-lg w-full"
-          value={city}
-          onChange={(e) => setCity(e.target.value)}
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
         />
       </div>
 
@@ -67,9 +86,12 @@ function CreateDesignation() {
       <div className="mt-8 flex gap-4">
         <button
           onClick={handleCreate}
-          className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700"
+          className={`${
+            loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
+          } text-white px-6 py-3 rounded-lg`}
+          disabled={loading}
         >
-          Create
+          {loading ? 'Creating...' : 'Create'}
         </button>
 
         <button

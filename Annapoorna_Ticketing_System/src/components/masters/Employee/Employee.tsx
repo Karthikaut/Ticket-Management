@@ -1,22 +1,33 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
-
-const employees = [
-  { name: 'Arun Kumar', email: 'arun@gmail.com', phone: '9876543210', designation: 'Manager', empId: 'EMP001' },
-  { name: 'Divya R', email: 'divya@gmail.com', phone: '8765432109', designation: 'Team Lead', empId: 'EMP002' },
-  { name: 'Rahul S', email: 'rahul@gmail.com', phone: '7654321098', designation: 'Developer', empId: 'EMP003' },
-  { name: 'Meena P', email: 'meena@gmail.com', phone: '6543210987', designation: 'Designer', empId: 'EMP004' },
-];
+import axios from 'axios';
 
 function Employee() {
+  const [employees, setEmployees] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterDesignation, setFilterDesignation] = useState('');
   const navigate = useNavigate();
 
-  const filteredEmployees = employees.filter(emp =>
-    emp.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
-    (filterDesignation === '' || emp.designation === filterDesignation)
-  );
+  // Fetch employees on mount
+  useEffect(() => {
+    fetchEmployees();
+  }, []);
+
+  const fetchEmployees = async () => {
+    try {
+      const response = await axios.get('http://localhost:3001/api/employee');
+      setEmployees(response.data);
+    } catch (error) {
+      console.error('Error fetching employees:', error);
+      alert('Failed to fetch employees. Please check the API.');
+    }
+  };
+
+  // Filtered employee list based on search and designation filter
+  // const filteredEmployees = employees.filter(emp =>
+  //   emp.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
+  //   (filterDesignation === '' || emp.designation === filterDesignation)
+  // );
 
   return (
     <div className="p-6 bg-white rounded-xl shadow">
@@ -45,8 +56,9 @@ function Employee() {
             <option value="Designer">Designer</option>
           </select>
 
-          <button className="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700"
-          onClick={() =>navigate('/create-employee') }
+          <button
+            className="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700"
+            onClick={() => navigate('/create-employee')}
           >
             Create New
           </button>
@@ -67,8 +79,8 @@ function Employee() {
             </tr>
           </thead>
           <tbody>
-            {filteredEmployees.map((emp, index) => (
-              <tr key={index} className="border-t hover:bg-gray-50">
+            {/* {filteredEmployees.map((emp, index) => (
+              <tr key={emp.empId} className="border-t hover:bg-gray-50">
                 <td className="p-3">{index + 1}</td>
                 <td className="p-3">{emp.name}</td>
                 <td className="p-3">{emp.email}</td>
@@ -76,7 +88,7 @@ function Employee() {
                 <td className="p-3">{emp.designation}</td>
                 <td className="p-3">{emp.empId}</td>
               </tr>
-            ))}
+            ))} */}
           </tbody>
         </table>
       </div>

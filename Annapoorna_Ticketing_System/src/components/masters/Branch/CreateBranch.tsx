@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
+import axios from 'axios';
 
 function CreateBranch() {
   const [name, setName] = useState('');
@@ -9,10 +10,9 @@ function CreateBranch() {
   const [industries, setIndustries] = useState('');
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Logic to save branch (e.g., API call or state update)
     const newBranch = {
       name,
       address,
@@ -21,20 +21,32 @@ function CreateBranch() {
       industries
     };
 
-    console.log('New Branch:', newBranch);
-    // Redirect to Branch Management page after successful creation
-    navigate('/branch-management');
+    try {
+      // Call API to save branch
+      const res = await axios.post('http://localhost:3001/api/branch', newBranch);
+      console.log('Branch created:', res.data);
+
+      // Redirect to Branch Management page after success
+      navigate('/branch');
+    } catch (err) {
+      console.error('Error creating branch:', err);
+      alert('Failed to create branch. Please try again.');
+    }
   };
 
   const handleGoBack = () => {
-    navigate(-1); // Go back to the previous page
+    navigate(-1);
   };
 
   return (
     <div className="p-6 bg-white rounded-xl shadow">
       <h2 className="text-2xl font-semibold mb-6">Create New Branch</h2>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form 
+      
+      // onSubmit={handleSubmit} 
+      
+      className="space-y-6">
         {/* Name */}
         <div className="flex items-center space-x-4">
           <label htmlFor="name" className="block text-sm font-medium text-gray-700 w-32">Name</label>
@@ -105,7 +117,7 @@ function CreateBranch() {
           />
         </div>
 
-        {/* Buttons - Aligning to the right */}
+        {/* Buttons */}
         <div className="flex justify-end space-x-4 mt-6">
           <button
             type="button"
